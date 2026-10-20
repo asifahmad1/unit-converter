@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Converter — Length, Weight, Volume, Temperature, Currency &amp; Storage</title>
+<style>
+  :root{
+    --emerald:#103E32; --emerald-deep:#0B352A; --lime:#DCF5B5; --paper:#F7F8F2;
+    --gold:#C9A227; --ink:#1E2A24; --muted:#5C6B62; --line:#D9E2D2; --error:#B3261E;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Segoe UI", system-ui, -apple-system, Arial, sans-serif; background:var(--paper); color:var(--ink); line-height:1.5;}
+  .wrap{max-width:760px; margin:0 auto; padding:20px 16px 40px;}
+  header{display:flex; align-items:center; gap:14px; background:var(--emerald); border-radius:14px; padding:16px 20px; color:var(--paper);}
+  .mono{flex:0 0 auto; width:52px; height:52px; border:2px solid var(--gold); border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:Georgia, serif; font-size:30px; color:var(--gold);}
+  header h1{font-family:Georgia, serif; font-size:26px; font-weight:700; letter-spacing:.2px;}
+  header p{font-size:12.5px; color:var(--lime); letter-spacing:1.6px; text-transform:uppercase;}
+  .intro{margin:16px 2px 6px; font-size:15px; color:var(--ink);}
+  .cats{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 18px;}
+  .cat{border:1.5px solid var(--emerald); background:#fff; color:var(--emerald); border-radius:999px; padding:7px 14px; font-size:14px; font-weight:600; cursor:pointer;}
+  .cat:hover{background:var(--lime);}
+  .cat.active{background:var(--emerald); color:var(--lime);}
+  .card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px; box-shadow:0 2px 10px rgba(16,62,50,.06);}
+  .row{display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:end;}
+  label{display:block; font-size:13px; font-weight:700; color:var(--emerald); margin-bottom:6px; letter-spacing:.3px;}
+  select, input[type=text]{width:100%; font-size:17px; padding:11px 12px; border:1.5px solid var(--line); border-radius:10px; background:#fff; color:var(--ink);}
+  select:focus, input[type=text]:focus{outline:3px solid var(--lime); border-color:var(--emerald);}
+  input.invalid{border-color:var(--error); outline-color:#F3C1BD;}
+  .swap{width:46px; height:46px; border-radius:50%; border:1.5px solid var(--emerald); background:var(--lime); color:var(--emerald); font-size:20px; cursor:pointer; margin-bottom:2px;}
+  .swap:hover{background:var(--gold); color:#fff;}
+  .resultbox{margin-top:16px; background:var(--emerald); color:var(--paper); border-radius:12px; padding:16px 18px;}
+  .resultbox .rlabel{font-size:12px; letter-spacing:1.4px; text-transform:uppercase; color:var(--lime);}
+  .resultbox .rvalue{font-size:30px; font-weight:700; word-break:break-all; font-family:Georgia, serif;}
+  .formula{margin-top:10px; font-size:14px; color:var(--muted);}
+  .err{display:none; margin-top:10px; color:var(--error); font-size:14px; font-weight:600;}
+  .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:16px;}
+  .btn{border-radius:10px; padding:11px 18px; font-size:15px; font-weight:700; cursor:pointer; border:1.5px solid var(--emerald);}
+  .btn.primary{background:var(--emerald); color:var(--lime);}
+  .btn.primary:hover{background:var(--emerald-deep);}
+  .btn.ghost{background:#fff; color:var(--emerald);}
+  .btn.ghost:hover{background:var(--lime);}
+  .fxbar{display:none; margin-top:14px; background:#FFF8E1; border:1px solid var(--gold); border-radius:10px; padding:10px 14px; font-size:13.5px;}
+  .fxbar button{margin-left:10px; border:1px solid var(--gold); background:#fff; border-radius:8px; padding:4px 10px; font-weight:700; cursor:pointer; color:var(--ink);}
+  .allunits{margin-top:20px;}
+  .allunits h2{font-size:15px; color:var(--emerald); margin-bottom:8px; font-family:Georgia, serif;}
+  .allunits table{width:100%; border-collapse:collapse; font-size:14.5px;}
+  .allunits td{padding:6px 8px; border-bottom:1px solid var(--line);}
+  .allunits td.v{text-align:right; font-variant-numeric:tabular-nums; font-weight:600;}
+  footer{margin-top:24px; font-size:13px; color:var(--muted); border-top:1px solid var(--line); padding-top:12px;}
+  @media (max-width:560px){
+    .row{grid-template-columns:1fr;}
+    .swap{margin:0 auto; transform:rotate(90deg);}
+    header h1{font-size:22px;}
+    .resultbox .rvalue{font-size:24px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="mono">A</div>
+    <div>
+      <h1>Unit Converter</h1>
+      <p>Asif SaaS Studio</p>
+    </div>
+  </header>
+
+  <p class="intro">Convert length, weight, volume, temperature, area, currency and digital storage — instantly, as you type. Paste any value in, or use the Clear button to start over.</p>
+
+  <div class="cats" id="cats" role="tablist" aria-label="Conversion category"></div>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label for="fromUnit">From</label>
+        <select id="fromUnit"></select>
+      </div>
+      <button class="swap" id="swapBtn" title="Swap units" aria-label="Swap units">&#8645;</button>
+      <div>
+        <label for="toUnit">To</label>
+        <select id="toUnit"></select>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <label for="amount">Value to convert</label>
+      <input type="text" id="amount" inputmode="decimal" placeholder="Type or paste a number, e.g. 1,234.5" autocomplete="off">
+      <div class="err" id="errMsg">Please enter a valid number (digits, one decimal point; commas are fine).</div>
+    </div>
+
+    <div class="resultbox" aria-live="polite">
+      <div class="rlabel">Result</div>
+      <div class="rvalue" id="result">&mdash;</div>
+    </div>
+
+    <div class="formula" id="formula"></div>
+
+    <div class="fxbar" id="fxbar">
+      <span id="fxStatus"></span>
+      <button id="fxRefresh" type="button">Refresh rates</button>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="copyBtn" type="button">Copy result</button>
+      <button class="btn ghost" id="clearBtn" type="button">Clear</button>
+    </div>
+
+    <div class="allunits" id="allWrap" style="display:none;">
+      <h2 id="allTitle">In every unit</h2>
+      <table id="allTable"><tbody></tbody></table>
+    </div>
+  </div>
+
+  <footer>
+    Runs entirely in your browser — nothing you type is sent anywhere. The only network use is the optional currency-rate refresh, which fetches public rates from open.er-api.com (no account, no key); if you are offline, clearly-labelled indicative rates built into the app are used instead. Temperature uses exact formulas; all other factors are the standard international definitions. Not for legal or trade settlement use. &middot; Unit Converter v1.0 &middot; Asif SaaS Studio, by Dr. Asif Ahmad.
+  </footer>
+</div>
+
+<script>
+/* PURE-CORE-START */
+/* Conversion data. Linear categories convert through a base unit via factor f
+   (value_in_base = value * f). Temperature is affine and handled by functions.
+   Currency converts through USD using rates = units per 1 USD. */
+var FX_SNAPSHOT = { USD:1, EUR:0.891477, GBP:0.751092, PKR:276.779576, INR:95.052511,
+  BDT:123.584647, CNY:6.693661, AED:3.6725, SAR:3.75, QAR:3.64, KWD:0.310405,
+  CAD:1.409964, AUD:1.432547, JPY:158.441511, CHF:0.826422, SGD:1.279789,
+  MYR:4.082505, TRY:49.581764, ZAR:16.42731, NGN:1332.819531 };
+var FX_SNAPSHOT_DATE = "20 Oct 2026";
+
+var CATS = {
+  length: { label:"Length", units:{
+    mm:{n:"Millimetres", s:"mm", f:0.001}, cm:{n:"Centimetres", s:"cm", f:0.01},
+    m:{n:"Metres", s:"m", f:1}, km:{n:"Kilometres", s:"km", f:1000},
+    inch:{n:"Inches", s:"in", f:0.0254}, ft:{n:"Feet", s:"ft", f:0.3048},
+    yd:{n:"Yards", s:"yd", f:0.9144}, mi:{n:"Miles", s:"mi", f:1609.344} } },
+  weight: { label:"Weight", units:{
+    mg:{n:"Milligrams", s:"mg", f:1e-6}, g:{n:"Grams", s:"g", f:1e-3},
+    kg:{n:"Kilograms", s:"kg", f:1}, ton:{n:"Metric tonnes", s:"t", f:1000},
+    oz:{n:"Ounces", s:"oz", f:0.028349523125}, lb:{n:"Pounds", s:"lb", f:0.45359237},
+    stone:{n:"Stone", s:"st", f:6.35029318} } },
+  volume: { label:"Volume", units:{
+    ml:{n:"Millilitres", s:"mL", f:0.001}, l:{n:"Litres", s:"L", f:1},
+    m3:{n:"Cubic metres", s:"m\u00B3", f:1000},
+    tsp:{n:"Teaspoons (US)", s:"tsp", f:0.00492892159375},
+    tbsp:{n:"Tablespoons (US)", s:"tbsp", f:0.01478676478125},
+    floz:{n:"Fluid ounces (US)", s:"fl oz", f:0.0295735295625},
+    cup:{n:"Cups (US)", s:"cup", f:0.2365882365},
+    pint:{n:"Pints (US)", s:"pt", f:0.473176473},
+    galUS:{n:"Gallons (US)", s:"gal", f:3.785411784},
+    galUK:{n:"Gallons (UK)", s:"gal UK", f:4.54609} } },
+  temperature: { label:"Temperature", temp:true, units:{
+    c:{n:"Celsius", s:"\u00B0C"}, f:{n:"Fahrenheit", s:"\u00B0F"}, k:{n:"Kelvin", s:"K"} } },
+  area: { label:"Area", units:{
+    m2:{n:"Square metres", s:"m\u00B2", f:1}, ft2:{n:"Square feet", s:"ft\u00B2", f:0.09290304},
+    yd2:{n:"Square yards", s:"yd\u00B2", f:0.83612736},
+    acre:{n:"Acres", s:"acre", f:4046.8564224}, ha:{n:"Hectares", s:"ha", f:10000},
+    marla:{n:"Marla", s:"marla", f:25.29285264}, kanal:{n:"Kanal", s:"kanal", f:505.8570528} } },
+  storage: { label:"Digital storage", units:{
+    bit:{n:"Bits", s:"bit", f:0.125}, byte:{n:"Bytes", s:"B", f:1},
+    kb:{n:"Kilobytes (KB, 1000)", s:"KB", f:1000}, mb:{n:"Megabytes (MB, 1000)", s:"MB", f:1e6},
+    gb:{n:"Gigabytes (GB, 1000)", s:"GB", f:1e9}, tb:{n:"Terabytes (TB, 1000)", s:"TB", f:1e12},
+    pb:{n:"Petabytes (PB, 1000)", s:"PB", f:1e15},
+    kib:{n:"Kibibytes (KiB, 1024)", s:"KiB", f:1024}, mib:{n:"Mebibytes (MiB, 1024)", s:"MiB", f:1048576},
+    gib:{n:"Gibibytes (GiB, 1024)", s:"GiB", f:1073741824}, tib:{n:"Tebibytes (TiB, 1024)", s:"TiB", f:1099511627776} } },
+  currency: { label:"Currency", fx:true, units:{
+    USD:{n:"US Dollar", s:"USD"}, EUR:{n:"Euro", s:"EUR"}, GBP:{n:"British Pound", s:"GBP"},
+    PKR:{n:"Pakistani Rupee", s:"PKR"}, INR:{n:"Indian Rupee", s:"INR"}, BDT:{n:"Bangladeshi Taka", s:"BDT"},
+    CNY:{n:"Chinese Yuan", s:"CNY"}, AED:{n:"UAE Dirham", s:"AED"}, SAR:{n:"Saudi Riyal", s:"SAR"},
+    QAR:{n:"Qatari Riyal", s:"QAR"}, KWD:{n:"Kuwaiti Dinar", s:"KWD"}, CAD:{n:"Canadian Dollar", s:"CAD"},
+    AUD:{n:"Australian Dollar", s:"AUD"}, JPY:{n:"Japanese Yen", s:"JPY"}, CHF:{n:"Swiss Franc", s:"CHF"},
+    SGD:{n:"Singapore Dollar", s:"SGD"}, MYR:{n:"Malaysian Ringgit", s:"MYR"}, TRY:{n:"Turkish Lira", s:"TRY"},
+    ZAR:{n:"South African Rand", s:"ZAR"}, NGN:{n:"Nigerian Naira", s:"NGN"} } }
+};
+
+function tempToC(unit, v){ if(unit==="c") return v; if(unit==="f") return (v-32)*5/9; return v-273.15; }
+function tempFromC(unit, v){ if(unit==="c") return v; if(unit==="f") return v*9/5+32; return v+273.15; }
+
+/* fxRates: map code -> units per 1 USD */
+function convert(catId, from, to, v, fxRates){
+  var cat = CATS[catId];
+  if(cat.temp) return tempFromC(to, tempToC(from, v));
+  if(cat.fx){
+    var rates = fxRates || FX_SNAPSHOT;
+    return (v / rates[from]) * rates[to];
+  }
+  return v * cat.units[from].f / cat.units[to].f;
+}
+
+/* Accept "1,234.5", " 42 ", ".5", "-3", "1e3". Reject everything else. */
+function parseInput(raw){
+  if(raw === null || raw === undefined) return { ok:false, empty:true };
+  var t = String(raw).replace(/[\s,]/g, "");
+  if(t === "") return { ok:false, empty:true };
+  if(!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t)) return { ok:false, empty:false };
+  var v = Number(t);
+  if(!isFinite(v)) return { ok:false, empty:false };
+  return { ok:true, value:v };
+}
+
+function fmt(x){
+  if(x === 0) return "0";
+  if(!isFinite(x)) return "\u2014";
+  var ax = Math.abs(x);
+  if(ax >= 1e15 || ax < 1e-9) return x.toExponential(6).replace("e+", "e");
+  return String(parseFloat(x.toPrecision(10)));
+}
+/* PURE-CORE-END */
+
+/* ---------- UI wiring ---------- */
+var FX = {}; for (var k in FX_SNAPSHOT) FX[k] = FX_SNAPSHOT[k];
+var fxLive = false, fxWhen = "";
+var catIds = Object.keys(CATS);
+var curCat = "length";
+
+var catsEl = document.getElementById("cats");
+var fromEl = document.getElementById("fromUnit");
+var toEl = document.getElementById("toUnit");
+var amtEl = document.getElementById("amount");
+var resEl = document.getElementById("result");
+var formulaEl = document.getElementById("formula");
+var errEl = document.getElementById("errMsg");
+var fxbarEl = document.getElementById("fxbar");
+var fxStatusEl = document.getElementById("fxStatus");
+var allWrap = document.getElementById("allWrap");
+var allTable = document.getElementById("allTable").querySelector("tbody");
+var allTitle = document.getElementById("allTitle");
+
+catIds.forEach(function(id){
+  var b = document.createElement("button");
+  b.type = "button"; b.className = "cat" + (id === curCat ? " active" : "");
+  b.textContent = CATS[id].label; b.setAttribute("role", "tab");
+  b.addEventListener("click", function(){ setCategory(id); });
+  catsEl.appendChild(b);
+});
+
+function fillUnits(){
+  var units = CATS[curCat].units;
+  fromEl.innerHTML = ""; toEl.innerHTML = "";
+  Object.keys(units).forEach(function(u){
+    var o1 = document.createElement("option"); o1.value = u; o1.textContent = units[u].n + " (" + units[u].s + ")";
+    var o2 = document.createElement("option"); o2.value = u; o2.textContent = units[u].n + " (" + units[u].s + ")";
+    fromEl.appendChild(o1); toEl.appendChild(o2);
+  });
+  var keys = Object.keys(units);
+  fromEl.value = keys[0];
+  toEl.value = keys[Math.min(2, keys.length - 1)];
+  if(curCat === "temperature"){ fromEl.value = "c"; toEl.value = "f"; }
+  if(curCat === "currency"){ fromEl.value = "USD"; toEl.value = "PKR"; }
+}
+
+function setCategory(id){
+  curCat = id;
+  var btns = catsEl.querySelectorAll(".cat");
+  btns.forEach(function(b, i){ b.className = "cat" + (catIds[i] === id ? " active" : ""); });
+  fxbarEl.style.display = CATS[id].fx ? "block" : "none";
+  fillUnits(); update();
+}
+
+function fxStatusText(){
+  if(fxLive) return "Rates: LIVE from open.er-api.com (updated " + fxWhen + ").";
+  return "Rates: built-in indicative snapshot, " + FX_SNAPSHOT_DATE + " — press Refresh with an internet connection for live rates.";
+}
+
+function update(){
+  fxStatusEl.textContent = fxStatusText();
+  var p = parseInput(amtEl.value);
+  if(p.empty){
+    resEl.textContent = "\u2014"; formulaEl.textContent = ""; errEl.style.display = "none";
+    amtEl.classList.remove("invalid"); allWrap.style.display = "none"; return;
+  }
+  if(!p.ok){
+    resEl.textContent = "\u2014"; formulaEl.textContent = ""; errEl.style.display = "block";
+    amtEl.classList.add("invalid"); allWrap.style.display = "none"; return;
+  }
+  errEl.style.display = "none"; amtEl.classList.remove("invalid");
+  var from = fromEl.value, to = toEl.value, units = CATS[curCat].units;
+  var out = convert(curCat, from, to, p.value, FX);
+  resEl.textContent = fmt(p.value) + " " + units[from].s + "  =  " + fmt(out) + " " + units[to].s;
+  var one = convert(curCat, from, to, 1, FX);
+  formulaEl.textContent = "1 " + units[from].n + " = " + fmt(one) + " " + units[to].n +
+    (CATS[curCat].fx && !fxLive ? "  (indicative rate)" : "");
+  /* every-unit table */
+  allTable.innerHTML = "";
+  Object.keys(units).forEach(function(u){
+    var tr = document.createElement("tr");
+    var td1 = document.createElement("td"); td1.textContent = units[u].n;
+    var td2 = document.createElement("td"); td2.className = "v";
+    td2.textContent = fmt(convert(curCat, from, u, p.value, FX)) + " " + units[u].s;
+    tr.appendChild(td1); tr.appendChild(td2); allTable.appendChild(tr);
+  });
+  allTitle.textContent = fmt(p.value) + " " + units[from].n + " in every unit";
+  allWrap.style.display = "block";
+}
+
+function fetchRates(){
+  fxStatusEl.textContent = "Fetching live rates\u2026";
+  fetch("https://open.er-api.com/v6/latest/USD")
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.result === "success" && d.rates){
+        Object.keys(FX).forEach(function(code){ if(d.rates[code]) FX[code] = d.rates[code]; });
+        fxLive = true; fxWhen = d.time_last_update_utc || "just now";
+      }
+      update();
+    })
+    .catch(function(){ fxLive = false; update(); });
+}
+
+document.getElementById("swapBtn").addEventListener("click", function(){
+  var t = fromEl.value; fromEl.value = toEl.value; toEl.value = t; update();
+});
+document.getElementById("clearBtn").addEventListener("click", function(){
+  amtEl.value = ""; update(); amtEl.focus();
+});
+document.getElementById("copyBtn").addEventListener("click", function(){
+  var txt = resEl.textContent;
+  if(txt === "\u2014"){ return; }
+  function done(){ var b = document.getElementById("copyBtn"); var old = b.textContent; b.textContent = "Copied \u2713"; setTimeout(function(){ b.textContent = old; }, 1500); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(function(){ fallback(); });
+  } else { fallback(); }
+  function fallback(){
+    var ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta);
+    ta.select(); try { document.execCommand("copy"); done(); } catch(e){ /* user can copy the visible result manually */ }
+    document.body.removeChild(ta);
+  }
+});
+document.getElementById("fxRefresh").addEventListener("click", fetchRates);
+amtEl.addEventListener("input", update);
+fromEl.addEventListener("change", update);
+toEl.addEventListener("change", update);
+
+fillUnits();
+update();
+fetchRates();
+</script>
+</body>
+</html>
